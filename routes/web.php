@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserRoleController;
-use App\Http\Controllers\LoginController;
+// use App\Http\Controllers\UserRoleController;
+// use App\Http\Controllers\LoginController;
 
 
 // Route::get('/', function () {
@@ -15,7 +15,7 @@ use App\Http\Controllers\LoginController;
 
 
 Route::get('/{any}', function () {
-    return view('welcome'); // or return your main React view file
+    return view('welcome');
 })->where('any', '.*');
 
 // Route::get('/user_role/index', [UserRoleController::class,'index'])->name('user_role.index');

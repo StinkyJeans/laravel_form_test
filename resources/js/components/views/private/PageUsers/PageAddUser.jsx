@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import postUsers from './tables/AddUsers.jsx';
+import { postUsers, GetUsers, EditUser, DeleteUser, PrintUserTable } from './tables/UserManager/UserManage.jsx'
 import { useNavigate } from 'react-router-dom';
+import { RollbackOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 
 
 const PageAddUser = () => {
     const [newUser, setNewUser] = useState({ username: '', email: '',
-        password: '', firstname: '', middlename: '', lastname: '', name_ext: '', gender: '', status: ''});
+        password: '', firstName: '', middleName: '', lastName: '', name_ext: '', gender: '', status: ''});
 
     const navigate = useNavigate();
 
@@ -68,7 +70,7 @@ const PageAddUser = () => {
     return (
         <div style={divContainer}>
             <div>
-            <button onClick={BackToUserTable}>Back to table</button>
+            <Button onClick={BackToUserTable} icon={<RollbackOutlined />}>Back to table</Button>
                 <form onSubmit={handleSubmit}
                     style={userForm}>
 
@@ -81,13 +83,13 @@ const PageAddUser = () => {
                         <input type="password" name="password" placeholder="Password" value={newUser.password} onChange={handleChange} required
                             style={inputUser} />
 
-                        <input type="text" name="firstname" placeholder="First Name" value={newUser.firstname} onChange={handleChange} required
+                        <input type="text" name="firstName" placeholder="First Name" value={newUser.firstName} onChange={handleChange} required
                             style={inputUser} />
 
-                        <input type="text" name="middlename" placeholder="Middle Name" value={newUser.middlename} onChange={handleChange} required
+                        <input type="text" name="middleName" placeholder="Middle Name" value={newUser.middleName} onChange={handleChange} required
                             style={inputUser} />
 
-                        <input type="text" name="lastname" placeholder="Last Name" value={newUser.lastname} onChange={handleChange} required
+                        <input type="text" name="lastName" placeholder="Last Name" value={newUser.lastName} onChange={handleChange} required
                             style={inputUser} />
 
                         <input type="text" name="name_ext" placeholder="Name Extension" value={newUser.name_ext} onChange={handleChange}

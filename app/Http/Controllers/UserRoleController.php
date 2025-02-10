@@ -5,44 +5,30 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class UserRoleController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(User::all());
+        // Get the value of the 'only_trashed' query parameter
+        $onlyTrashed = $request->query('only_trashed');
+
+        if ($onlyTrashed) {
+            // Fetch only soft-deleted (archived) users
+            $users = User::onlyTrashed()->get();
+        } else {
+            // Fetch all users, including active and soft-deleted ones
+            $users = User::all();
+        }
+
+        // Return the users
+        return response()->json([
+            'users' => $users
+        ]);
     }
 
-    /**
-     * Display a listing of the resource.
-    //  */
-    // public function index()
-    // {
-    //     $users = User::all();
-    //     return view('user_role.index', compact('users'));
-    // }
-
-
-    // public function userTable()
-    // {
-    //     $users = User::all();
-    //     return view('user_role.userTable', compact('users'));
-    // }
-    //     /**
-    //  * Show the form for creating a new resource.
-    //  */
-    // public function create()
-    // {
-    //     $users = User::all();
-    //     return view('user_role.create', compact('users'));
-    // }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store()
     {
         try {
@@ -50,9 +36,9 @@ class UserRoleController extends Controller
                 'username' => ['required'],
                 'email' => ['required'],
                 'password' => ['required'],
-                'firstname' => ['required' ],
-                'middlename' => ['required'],
-                'lastname' => ['required'],
+                'firstName' => ['required' ],
+                'middleName' => ['required'],
+                'lastName' => ['required'],
                 'name_ext' => ['nullable'],
                 'gender' => ['required'],
                 'status' => ['required'],
@@ -63,9 +49,9 @@ class UserRoleController extends Controller
                 'username' => $validated['username'],
                 'email' => $validated['email'],
                 'password' => $validated['password'],
-                'firstname' => $validated['firstname'],
-                'middlename' => $validated['middlename'],
-                'lastname' => $validated['lastname'],
+                'firstName' => $validated['firstName'],
+                'middleName' => $validated['middleName'],
+                'lastName' => $validated['lastName'],
                 'name_ext' => $validated['name_ext'],
                 'gender' => $validated['gender'],
                 'status' => $validated['status'],
@@ -127,9 +113,9 @@ class UserRoleController extends Controller
             $validated = request()->validate([
                 'username' => ['required'],
                 'email' => ['required'],
-                'firstname' => ['required'],
-                'middlename' => ['required'],
-                'lastname' => ['required'],
+                'firstName' => ['required'],
+                'middleName' => ['required'],
+                'lastName' => ['required'],
                 'name_ext' => ['nullable'],
                 'gender' => ['required'],
                 'status' => ['required']
@@ -171,6 +157,48 @@ class UserRoleController extends Controller
         $user->delete();
         return response()->noContent();
     }
+
+    public function deleteMultiple(Request $request)
+    {
+        $userIds = $request->input('ids'); // Expecting an array of user IDs
+
+        if (empty($userIds)) {
+            return response()->json(['success' => false, 'message' => 'No users selected.'], 400);
+        }
+
+        // Soft delete users
+        $deleted = User::whereIn('id', $userIds)->update(['deleted_at' => now()]);
+
+        if ($deleted) {
+            return response()->json(['success' => true, 'message' => 'Users deleted successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'No users found to delete.'], 404);
+        }
+    }
+
+
+
+
+    public function restoreUser($id)
+    {
+        // Fetch soft-deleted user
+        $user = User::onlyTrashed()->find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found or not deleted'], 404);
+        }
+
+        // Restore the user
+        $user->restore();
+
+        return response()->json(['message' => 'User restored successfully', 'user' => $user]);
+    }
+
+
+
+
+
+
 }
 
 
