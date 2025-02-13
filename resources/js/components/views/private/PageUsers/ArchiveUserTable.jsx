@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import useArchivedUsers from "./tables/GetArchivedUsers.jsx";
 import { RedoOutlined, RollbackOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { Button } from "antd";
-import { restoreUser } from "./tables/UserManager/UserManage.jsx";
+import { restoreMultipleUsers,restoreUser } from "./tables/UserManager/UserManage.jsx";
 
 const ArchivedUsersPage = () => {
     const { users, error } = useArchivedUsers();
     const navigate = useNavigate();
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
+
+
 
     const tableHeader = {
         border: '1px solid gray',
@@ -33,17 +37,65 @@ const ArchivedUsersPage = () => {
         textAlign: 'center',
     }
 
+    const backButton = {
+        marginLeft: '10px'
+    }
+
     const BackToUserTable = () => {
         navigate('/users');
     }
+
+    const handleSelectUser = (userId) => {
+        setSelectedUsers((prevSelected) =>
+            prevSelected.includes(userId)
+                ? prevSelected.filter((id) => id !== userId) // Deselect
+                : [...prevSelected, userId]
+        );
+    };
+
+    const handleSelectAll = () => {
+        if (selectAll) {
+            setSelectedUsers([]);
+        } else {
+            setSelectedUsers(users.map((user) => user.id));
+        }
+        setSelectAll(!selectAll);
+    };
+
+    const handleMultipleRestore = async () => {
+        try {
+            const result = await restoreMultipleUsers(selectedUsers);
+            if (result.success) {
+                setSelectedUsers([]);
+                setSelectAll(false);
+            } else {
+                alert(result.message || "Failed to restore users");
+            }
+        } catch (error) {
+            console.error("Error restoring users:", error);
+        }
+    };
+
+
     return (
         <div style={{ padding: "20px" }}>
             <h1 style={archivedUsersText}>Archived Users Table</h1>
+            <Button onClick={handleMultipleRestore} disabled={selectedUsers.length === 0} icon={<RedoOutlined />}>
+                Restore Selected Users
+            </Button>
+
             {error && <p style={{ color: "red" }}>{error}</p>}
-            <Button onClick={BackToUserTable} icon={<RollbackOutlined />}>Back</Button>
+            <Button onClick={BackToUserTable} style={backButton} icon={<RollbackOutlined />}>Back</Button>
             <table style={tableContainer}>
                 <thead style={tableHeader}>
                     <tr>
+                    <th style={tableHeader}>
+                        <input
+                            type="checkbox"
+                            checked={selectAll}
+                            onChange={handleSelectAll}
+                        />
+                        </th>
                         <th>Actions</th>
                         <th>Username</th>
                         <th>Email</th>
@@ -59,6 +111,13 @@ const ArchivedUsersPage = () => {
                     {users.length > 0 ? (
                         users.map((user) => (
                             <tr key={user.id}>
+                                <td style={tableData}>
+                                <input
+                                        type="checkbox"
+                                        checked={selectedUsers.includes(user.id)}
+                                        onChange={() => handleSelectUser(user.id)}
+                                    />
+                                </td>
                                 <td style={tableData}>
                                 <Button onClick={() => restoreUser(user.id)} icon={<RedoOutlined />}>Restore</Button>
                                 </td>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Response;
 
 Route::apiResource('users', UserRoleController::class);
 Route::post('/users/{id}/restore', [UserRoleController::class, 'restoreUser']);
+Route::post('/users/restore-multiple', [UserRoleController::class, 'restoreMultiple']);
 Route::delete('/users', [UserRoleController::class, 'deleteMultiple']);
 
 

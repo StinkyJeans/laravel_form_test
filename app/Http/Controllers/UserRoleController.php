@@ -193,6 +193,23 @@ class UserRoleController extends Controller
 
         return response()->json(['message' => 'User restored successfully', 'user' => $user]);
     }
+    public function restoreMultiple(Request $request)
+    {
+        $userIds = $request->input('ids'); // Expecting an array of user IDs
+
+        if (empty($userIds)) {
+            return response()->json(['success' => false, 'message' => 'No users selected.'], 400);
+        }
+
+        // Restore soft deleted users
+        $restored = User::whereIn('id', $userIds)->onlyTrashed()->restore();
+
+        if ($restored) {
+            return response()->json(['success' => true, 'message' => 'Users restored successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'No users found to restore.'], 404);
+        }
+    }
 
 
 

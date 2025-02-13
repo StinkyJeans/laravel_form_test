@@ -3,15 +3,8 @@ import { Button } from "antd";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../../layouts/Header.jsx';
-import {
-    GetUsers,
-    EditUser,
-    DeleteUser,
-    PrintUserTable,
-    MultipleDeleteUser
-} from './tables/UserManager/UserManage.jsx';
-
-
+import {GetUsers, EditUser, DeleteUser, PrintUserTable,MultipleDeleteUser} from './tables/UserManager/UserManage.jsx';
+import CertificateModal from "./Modal/CertificateModal.jsx";
 
 
 const PageUsers = () => {
@@ -22,10 +15,85 @@ const PageUsers = () => {
     const navigate = useNavigate();
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
+    const [showCertificateModal, setShowCertificateModal] = useState(false);  // State for showing certificate modal
+    const [certificateData, setCertificateData] = useState({});  // State to hold certificate data
+    const tableHeader = {
+        border: '1px solid gray',
+        padding: '10px',
+    };
+
+    const tableContainer = {
+        borderCollapse: 'collapse',
+        border: '1px solid gray',
+        marginTop: '1rem',
+        width: '100%',
+    };
+
+    const tableData = {
+        border: '1px solid gray',
+        padding: '0.5rem 1rem',
+    };
+
+    const exportButton = {
+        padding: '10px',
+        border: 'solid 1px',
+        borderRadius: '10px',
+        marginLeft: "20px",
+    }
+
+    const EditDeleteButton = {
+         padding: '5px',
+         border: '1px solid #ccc',
+         marginLeft: '10px'
+    }
+
+    const tdButton = {
+        padding: '10px',
+        borderRadius: '5px',
+        border: '1px solid #ccc'
+    }
+
+    const selectOptions = {
+        width: '100%',
+        padding: '5px'
+    }
+
+    const PrintTab = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+         width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
+    const printButton = {
+         padding: '10px',
+         border: 'solid 1px',
+         borderRadius: '10px',
+         marginLeft: "20px",
+    }
+
+
 
     if (error) {
         return <div>Error: {error}</div>;
     }
+
+    const certificateExample = {
+        title: "Certificate of Appreciation",
+        recipientName: "John Doe",
+        description: "Thank you for participating in the testing of the website. This certificate is awarded to John Doe for their valuable contribution.",
+        date: "February 2025",
+    };
+
+    const openCertificateModal = () => {
+        setCertificateData(certificateExample);
+        setShowCertificateModal(true);
+    };
+
 
     const handleSelectUser = (userId) => {
         setSelectedUsers(prev =>
@@ -50,11 +118,12 @@ const PageUsers = () => {
         if (result.success) {
             setSelectedUsers([]);
             setSelectAll(false);
-            // refetch(); // Refresh user data
         } else {
             alert(result.message || 'Failed to delete users');
         }
     };
+
+
 
 
     const handleAddUser = () => {
@@ -124,69 +193,6 @@ const PageUsers = () => {
         link.click();
         document.body.removeChild(link);
     };
-    const tableHeader = {
-        border: '1px solid gray',
-        padding: '10px',
-    };
-
-    const tableContainer = {
-        borderCollapse: 'collapse',
-        border: '1px solid gray',
-        marginTop: '1rem',
-        width: '100%',
-    };
-
-    const tableData = {
-        border: '1px solid gray',
-        padding: '0.5rem 1rem',
-    };
-
-    const exportButton = {
-        padding: '10px',
-        border: 'solid 1px',
-        borderRadius: '10px',
-        marginLeft: "20px",
-    }
-
-    const EditDeleteButton = {
-         padding: '5px',
-         border: '1px solid #ccc',
-         marginLeft: '10px'
-    }
-
-    const tdButton = {
-        padding: '10px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    }
-
-    const selectOptions = {
-        width: '100%',
-        padding: '5px'
-    }
-
-    const PrintTab = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-         width: '100vw',
-        height: '100vh',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
-    const printButton = {
-         padding: '10px',
-         border: 'solid 1px',
-         borderRadius: '10px',
-         marginLeft: "20px",
-    }
-
-    // const userManageButtons = {
-    //     marginLeft: "10px",
-    //     justifyContent: 'space-between',
-    // }
 
 
     return (
@@ -206,6 +212,20 @@ const PageUsers = () => {
             <Button onClick={() => setShowPrintTab(true)} style={printButton} icon={<PrinterOutlined />}> Print User Table </Button>
             <Button onClick={viewArchivedTable} style={printButton} icon={<FolderViewOutlined />}>View Archive Table</Button>
             <table style={tableContainer}>
+            <Button
+                onClick={openCertificateModal}  // Opens the modal when clicked
+                icon={<PrinterOutlined />}
+                style={{ padding: '10px', margin: '10px' }}
+            >
+                View Certificate
+            </Button>
+
+            {/* Modal Component */}
+            <CertificateModal
+                isOpen={showCertificateModal}
+                onClose={() => setShowCertificateModal(false)}  // Close the modal when X button is clicked
+                certificate={certificateData}  // Pass the certificate data
+            />
                 <thead>
                     <tr style={{ backgroundColor: '#e2e8f0' }}>
                     <th style={tableHeader}>

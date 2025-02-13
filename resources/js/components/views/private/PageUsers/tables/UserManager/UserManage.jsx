@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { WindowsFilled } from '@ant-design/icons';
 
 
 // Post User
@@ -90,12 +91,32 @@ export const restoreUser = async (userId, useArchivedUsers) => {
     }
 };
 
+//Restore multiple user
+export const restoreMultipleUsers = async (userIds) => {
+    try {
+        const response = await axios.post('/api/users/restore-multiple', { ids: userIds });
+        alert("User has been restored!");
+        window.location.reload();
+        return { success: true };
+    } catch (error) {
+        console.error('Error restoring users:', error);
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message
+        };
+    }
+};
 
+
+
+
+//Delete multiple user
 export const MultipleDeleteUser = async (selectedUsers) => {
     try {
         await axios.delete('/api/users', {
-            data: { ids: selectedUsers }  // Send the IDs in the request body
+            data: { ids: selectedUsers }
         });
+        alert("User has been put to archive!");
         window.location.reload();
         return { success: true };
     } catch (error) {
